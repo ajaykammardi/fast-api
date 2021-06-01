@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  postgresdb:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres_db
+    volumes:
+    - posgresdb-data:/var/lib/postgresql/data
+    ports:
+    - 6432:5432
+  dataloader:
+    build: /docker/data_loader/.
+  api:
+    build: /docker/api/.
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgresdb
+  volumes:
+    posgresdb-data:
+      driver: local

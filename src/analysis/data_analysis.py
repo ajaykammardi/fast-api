@@ -4,6 +4,9 @@ import numpy as np
 df = pd.read_parquet('../../data/data.parquet.gzip')
 print(len(df))  # 511427
 
+# Unique countries present in data
+print(df['country_code'].unique())  # ['China' 'Peru' 'Australia' 'Latvia']
+
 # Since country of interest is Peru, filtering only Peru assuming voucher amount differs on countries
 df_peru = df.loc[df['country_code'] == 'Peru']
 print(len(df_peru))  # 106547
@@ -15,9 +18,8 @@ print(df_peru['voucher_amount'].isnull().sum())  # 13950
 df_peru_error = df_peru.loc[df_peru['timestamp'] < df_peru['last_order_ts']]
 print(len(df_peru_error))  # 8624
 
-# Check how many records have timestamp is less than last_order_ts
+# Filter records for timestamp greater than or equal to last_order_ts
 df_peru = df_peru.loc[df_peru['timestamp'] >= df_peru['last_order_ts']]
-print(len(df_peru))  #
 
 # Finding Voucher amount distribution for replacing missing value
 print(df_peru['voucher_amount'].describe())
@@ -54,7 +56,7 @@ max        516.000000
 '''
 
 # create a list of our conditions
-conditions = [
+conditions_total_orders = [
     (df_peru['total_orders'] >= 0) & (df_peru['total_orders'] < 5),
     (df_peru['total_orders'] >= 5) & (df_peru['total_orders'] < 14),
     (df_peru['total_orders'] >= 14) & (df_peru['total_orders'] < 38),
@@ -62,10 +64,10 @@ conditions = [
     ]
 
 # create a list of the values we want to assign for each condition
-values = ['0-4', '5-13', '14-37', '38>']
+values_total_orders = ['0-4', '5-13', '14-37', '38>']
 
 # create a new column and use np.select to assign values to it using our lists as arguments
-df_peru['frequent_segment'] = np.select(conditions, values)
+df_peru['frequent_segment'] = np.select(conditions_total_orders, values_total_orders)
 
 print(df_peru)
 
@@ -73,4 +75,27 @@ df_peru[['timestamp', 'last_order_ts']] = df_peru[['timestamp', 'last_order_ts']
 df_peru['days'] = (df_peru['timestamp'] - df_peru['last_order_ts']).dt.days
 print(df_peru)
 
+# create a list of our conditions
+conditions_days = [
+    (df_peru['days'] >= 30) & (df_peru['days'] < 61),
+    (df_peru['days'] >= 61) & (df_peru['days'] < 91),
+    (df_peru['days'] >= 91) & (df_peru['days'] < 121),
+    (df_peru['days'] >= 121) & (df_peru['days'] < 181),
+    (df_peru['days'] >= 181),
+    (df_peru['days'] < 30)
+    ]
+
+# create a list of the values we want to assign for each condition
+values_total_days = ['30-60', '61-90', '91-120', '121-180', '180+', '<30']
+
+# create a new column and use np.select to assign values to it using our lists as arguments
+df_peru['recency_segment'] = np.select(conditions_days, values_total_days)
+
 # No data found for days since the last order greater than 121+
+print(df_peru['recency_segment'].unique())
+print(df_peru['frequent_segment'].unique())
+
+
+print(df_peru.groupby(['recency_segment', 'voucher_amount'])['voucher_amount'].count())
+print(df_peru.groupby(['frequent_segment', 'voucher_amount'])['voucher_amount'].count())
+
