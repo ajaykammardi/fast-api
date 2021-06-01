@@ -2,7 +2,8 @@ version: '3'
 
 services:
   postgresdb:
-    image: postgres:latest
+    build: ./docker/postgres/.
+    container_name: postgres_db
     restart: always
     environment:
       - POSTGRES_USER=postgres_user
@@ -13,13 +14,20 @@ services:
     ports:
     - 6432:5432
   dataloader:
-    build: /docker/data_loader/.
+    build: ./docker/data_loader/.
+    container_name: etl_pipeline
+    volumes:
+    - ./src/data_loader/:/app/src/data_loader/
+    - ./data/:/app/data/
   api:
-    build: /docker/api/.
+    build: ./docker/api/.
+    container_name: voucher_api
+    volumes:
+    - ./src/api/:/app/api/
     ports:
       - "8000:8000"
     depends_on:
       - postgresdb
-  volumes:
-    posgresdb-data:
-      driver: local
+volumes:
+  posgresdb-data:
+    driver: local
