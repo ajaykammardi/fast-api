@@ -33,13 +33,13 @@ fast-api
 |   |
 |   └───analysis
 |   |   | data_analysis.py                      # Initial data analysis script
-|   |
+|   |   |
 |   └───api
 |   |   | main.py                               # Main api definiation
 |   |   |
 |   |   └───test
 |   |   |   | test_main.py                      # Unit test suite for API
-|   |
+|   |   |
 |   └───data_loader
 |   |   | main.py                               # ETL script
 ```
