@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   postgresdb:
@@ -10,7 +10,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres_db
     volumes:
-    - posgresdb-data:/var/lib/postgresql/data
+      - posgresdb-data:/var/lib/postgresql/data
+    networks:
+      - internalnetwork
     ports:
     - 5432:5432
   dataloader:
@@ -18,8 +20,10 @@ services:
     container_name: etlpipeline
     restart: always
     volumes:
-    - ./src/data_loader/:/app/src/data_loader/
-    - ./data/:/app/data/
+      - ./src/data_loader/:/app/src/data_loader/
+      - ./data/:/app/data/
+    networks:
+      - internalnetwork
     depends_on:
       - postgresdb
   api:
@@ -27,11 +31,20 @@ services:
     container_name: voucherapi
     restart: always
     volumes:
-    - ./src/api/:/app/
+      - ./src/api/:/app/src/api/
+      - ./src/__init__.py:/app/src/__init__.py
     ports:
       - "8000:8000"
+    environment:
+      PORT: 8000
+      FLASK_DEBUG: 1
+    networks:
+      - internalnetwork
     depends_on:
       - postgresdb
+networks:
+  internalnetwork:
+    driver: bridge
 volumes:
   posgresdb-data:
     driver: local
