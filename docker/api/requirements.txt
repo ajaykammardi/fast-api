@@ -3,3 +3,4 @@ uvicorn
 pytest
 requests
 SQLAlchemy
+psycopg2-binary

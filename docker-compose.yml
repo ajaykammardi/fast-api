@@ -3,7 +3,7 @@ version: '3'
 services:
   postgresdb:
     build: ./docker/postgres/.
-    container_name: postgres_db
+    container_name: postgresdb
     restart: always
     environment:
       - POSTGRES_USER=postgres_user
@@ -12,16 +12,18 @@ services:
     volumes:
     - posgresdb-data:/var/lib/postgresql/data
     ports:
-    - 6432:5432
+    - 5432:5432
   dataloader:
     build: ./docker/data_loader/.
-    container_name: etl_pipeline
+    container_name: etlpipeline
+    restart: always
     volumes:
     - ./src/data_loader/:/app/src/data_loader/
     - ./data/:/app/data/
   api:
     build: ./docker/api/.
-    container_name: voucher_api
+    container_name: voucherapi
+    restart: always
     volumes:
     - ./src/api/:/app/api/
     ports:

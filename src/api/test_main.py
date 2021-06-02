@@ -27,3 +27,16 @@ def test_for_bad_request():
             , "country_code": "Germany"},
     )
     assert response.status_code == 422
+
+
+def test_for_customer_recency_segment():
+    response = client.post(
+        "/customer/",
+        json={"customer_id": 123
+            , "country_code": "Peru"
+            , "last_order_ts":  "2018-05-03 00:00:00"
+            , "first_order_ts": "2017-05-03 00:00:00"
+            , "total_orders": 15
+            , "segment_name": "recency_segment"},
+    )
+    assert response.status_code == 200
