@@ -38,7 +38,8 @@ voucher_amount_schema = VoucherAmountSchema()
 
 @app.route('/voucher-amount', methods=['POST'])
 def get_voucher_amount():
-    voucher_amount = None
+    response = {}
+    db_query_result = None
     data = request.get_json()
 
     app.logger.info('Getting voucher amount for %s' % str(data['country_code']))
@@ -46,10 +47,9 @@ def get_voucher_amount():
     if str(data['country_code']).lower() != 'peru':
         abort(501)
 
-    voucher_amount = VoucherAmount.query.filter_by(country_code=data['country_code'],
-                                                   segment_name=data['segment_name']).first()
-
-    return VoucherAmountSchema.dumps(voucher_amount), 200, content_type
+    db_query_result = VoucherAmount.query.with_entities(VoucherAmount.voucher_amount).filter_by(country_code=data['country_code'],segment_name=data['segment_name']).first()
+    response['voucher_amount'] = list(db_query_result)
+    return voucher_amount_schema.dumps(db_query_result), 200, content_type
 
 
 @app.errorhandler(501)
