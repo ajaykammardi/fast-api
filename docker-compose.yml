@@ -20,12 +20,14 @@ services:
     volumes:
     - ./src/data_loader/:/app/src/data_loader/
     - ./data/:/app/data/
+    depends_on:
+      - postgresdb
   api:
     build: ./docker/api/.
     container_name: voucherapi
     restart: always
     volumes:
-    - ./src/api/:/app/api/
+    - ./src/api/:/app/
     ports:
       - "8000:8000"
     depends_on:

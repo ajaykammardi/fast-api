@@ -1,6 +1,2 @@
-fastapi
-uvicorn
-pytest
-requests
-SQLAlchemy
+Flask
 psycopg2-binary
