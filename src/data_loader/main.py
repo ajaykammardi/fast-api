@@ -6,7 +6,7 @@ from psycopg2 import extras
 
 
 def data_reader():
-    df = pd.read_parquet('../../data/data.parquet.gzip')
+    df = pd.read_parquet('/app/data/data.parquet.gzip')
     return df
 
 
@@ -118,9 +118,11 @@ def data_loader(df_to_load):
 
 
 if __name__ == '__main__':
+    print('Etl Process starts')
     cleaned_data = data_cleaner(data_reader())
     transformed_data = data_tranformation(cleaned_data)
     data_loader(transformed_data)
+    print('Etl Process completed...!!!')
 
 
 

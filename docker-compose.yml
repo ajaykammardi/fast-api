@@ -18,7 +18,6 @@ services:
   dataloader:
     build: ./docker/data_loader/.
     container_name: etlpipeline
-    restart: always
     volumes:
       - ./src/data_loader/:/app/src/data_loader/
       - ./data/:/app/data/
