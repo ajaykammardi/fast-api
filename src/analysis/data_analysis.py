@@ -61,7 +61,7 @@ conditions_total_orders = [
     (df_peru['total_orders'] >= 5) & (df_peru['total_orders'] < 14),
     (df_peru['total_orders'] >= 14) & (df_peru['total_orders'] < 38),
     (df_peru['total_orders'] >= 38)
-    ]
+]
 
 # create a list of the values we want to assign for each condition
 values_total_orders = ['0-4', '5-13', '14-37', '38>']
@@ -83,7 +83,7 @@ conditions_days = [
     (df_peru['days'] >= 121) & (df_peru['days'] < 181),
     (df_peru['days'] >= 181),
     (df_peru['days'] < 30)
-    ]
+]
 
 # create a list of the values we want to assign for each condition
 values_total_days = ['30-60', '61-90', '91-120', '121-180', '180+', '<30']
@@ -95,7 +95,20 @@ df_peru['recency_segment'] = np.select(conditions_days, values_total_days)
 print(df_peru['recency_segment'].unique())
 print(df_peru['frequent_segment'].unique())
 
+df_peru_recency_segment = df_peru.groupby(['recency_segment', 'voucher_amount'])[
+    'country_code'].count().sort_values().groupby(level=0).tail(1)
+df_peru_frequent_segment = df_peru.groupby(['frequent_segment', 'voucher_amount'])[
+    'country_code'].count().sort_values().groupby(level=0).tail(1)
 
-print(df_peru.groupby(['recency_segment', 'voucher_amount'])['voucher_amount'].count())
-print(df_peru.groupby(['frequent_segment', 'voucher_amount'])['voucher_amount'].count())
+df_peru_recency_segment = df_peru_recency_segment.reset_index()
+df_peru_frequent_segment = df_peru_frequent_segment.reset_index()
 
+df_peru_recency_segment['segment_name'] = 'recency_segment'
+df_peru_frequent_segment['segment_name'] = 'frequent_segment'
+
+df_peru_recency_segment.rename(columns={'recency_segment': 'segment_variants'}, inplace=True)
+df_peru_frequent_segment.rename(columns={'frequent_segment': 'segment_variants'}, inplace=True)
+
+df_row_merged = pd.concat([df_peru_recency_segment, df_peru_frequent_segment], ignore_index=True)
+df_row_merged.rename(columns={'country_code': 'max_count'}, inplace=True)
+print(df_row_merged)
